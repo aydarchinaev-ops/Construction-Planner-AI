@@ -1,22 +1,41 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Planning Copilot API - AI Chat-Based Construction Scheduling Platform
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: projects
+    description: Project management
+  - name: tasks
+    description: Task management
+  - name: dependencies
+    description: Dependency management
+  - name: wbs
+    description: WBS management
+  - name: chat
+    description: AI Chat orchestration
+  - name: suggestions
+    description: AI suggestions
+  - name: validation
+    description: Schedule validation
+  - name: templates
+    description: Project templates
+  - name: export
+    description: Export operations
+  - name: versions
+    description: Version history
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +43,587 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List all projects
+      responses:
+        "200":
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create a new project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+      responses:
+        "201":
+          description: Created project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /projects/{projectId}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get project by ID
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Not found
+    put:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectRequest"
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/{projectId}/summary:
+    get:
+      operationId: getProjectSummary
+      tags: [projects]
+      summary: Get project schedule summary stats
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Summary stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectSummary"
+
+  /projects/{projectId}/wbs:
+    get:
+      operationId: getWbsNodes
+      tags: [wbs]
+      summary: Get WBS hierarchy for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: WBS nodes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WbsNode"
+    post:
+      operationId: createWbsNode
+      tags: [wbs]
+      summary: Create a WBS node
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWbsNodeRequest"
+      responses:
+        "201":
+          description: Created WBS node
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WbsNode"
+
+  /projects/{projectId}/tasks:
+    get:
+      operationId: getTasks
+      tags: [tasks]
+      summary: Get all tasks for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: wbsNodeId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: discipline
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+    post:
+      operationId: createTask
+      tags: [tasks]
+      summary: Create a task
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTaskRequest"
+      responses:
+        "201":
+          description: Created task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /tasks/{taskId}:
+    get:
+      operationId: getTask
+      tags: [tasks]
+      summary: Get task by ID
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+    put:
+      operationId: updateTask
+      tags: [tasks]
+      summary: Update a task
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTaskRequest"
+      responses:
+        "200":
+          description: Updated task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+    delete:
+      operationId: deleteTask
+      tags: [tasks]
+      summary: Delete a task
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/{projectId}/dependencies:
+    get:
+      operationId: getDependencies
+      tags: [dependencies]
+      summary: Get all dependencies for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Dependencies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Dependency"
+    post:
+      operationId: createDependency
+      tags: [dependencies]
+      summary: Create a dependency
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDependencyRequest"
+      responses:
+        "201":
+          description: Created dependency
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dependency"
+
+  /dependencies/{dependencyId}:
+    put:
+      operationId: updateDependency
+      tags: [dependencies]
+      summary: Update a dependency
+      parameters:
+        - name: dependencyId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDependencyRequest"
+      responses:
+        "200":
+          description: Updated dependency
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dependency"
+    delete:
+      operationId: deleteDependency
+      tags: [dependencies]
+      summary: Delete a dependency
+      parameters:
+        - name: dependencyId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/{projectId}/chat/message:
+    post:
+      operationId: sendChatMessage
+      tags: [chat]
+      summary: Send a chat message to the AI planning assistant
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatMessageRequest"
+      responses:
+        "200":
+          description: AI response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessageResponse"
+
+  /projects/{projectId}/chat/history:
+    get:
+      operationId: getChatHistory
+      tags: [chat]
+      summary: Get chat history for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Chat history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+
+  /projects/{projectId}/generate-schedule:
+    post:
+      operationId: generateSchedule
+      tags: [chat]
+      summary: Generate a full schedule from project data
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Generation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateScheduleResponse"
+
+  /projects/{projectId}/ai-suggestions:
+    get:
+      operationId: getAiSuggestions
+      tags: [suggestions]
+      summary: Get AI suggestions for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, accepted, rejected]
+      responses:
+        "200":
+          description: AI suggestions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AiSuggestion"
+
+  /ai-suggestions/{suggestionId}/accept:
+    post:
+      operationId: acceptAiSuggestion
+      tags: [suggestions]
+      summary: Accept an AI suggestion
+      parameters:
+        - name: suggestionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated suggestion
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiSuggestion"
+
+  /ai-suggestions/{suggestionId}/reject:
+    post:
+      operationId: rejectAiSuggestion
+      tags: [suggestions]
+      summary: Reject an AI suggestion
+      parameters:
+        - name: suggestionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated suggestion
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiSuggestion"
+
+  /projects/{projectId}/validation:
+    get:
+      operationId: validateSchedule
+      tags: [validation]
+      summary: Run validation checks on a project schedule
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Validation results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationResult"
+
+  /templates:
+    get:
+      operationId: listTemplates
+      tags: [templates]
+      summary: List available project templates
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: industry
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Template"
+
+  /projects/{projectId}/export/p6-xml:
+    post:
+      operationId: exportP6Xml
+      tags: [export]
+      summary: Export project schedule as Primavera P6 XML
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: P6 XML export
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportResult"
+
+  /projects/{projectId}/versions:
+    get:
+      operationId: getScheduleVersions
+      tags: [versions]
+      summary: Get schedule version history
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Version list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScheduleVersion"
+    post:
+      operationId: createScheduleVersion
+      tags: [versions]
+      summary: Snapshot current schedule as a version
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVersionRequest"
+      responses:
+        "201":
+          description: Created version
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleVersion"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +634,677 @@ components:
       required:
         - status
 
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        projectType:
+          type: string
+        industry:
+          type: string
+        location:
+          type: string
+        capacity:
+          type: string
+        executionModel:
+          type: string
+        contractStrategy:
+          type: string
+        startDate:
+          type: string
+          format: date
+        targetFinishDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [draft, active, on_hold, completed]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - status
+        - createdAt
+        - updatedAt
+
+    CreateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        projectType:
+          type: string
+        industry:
+          type: string
+        location:
+          type: string
+        capacity:
+          type: string
+        executionModel:
+          type: string
+        contractStrategy:
+          type: string
+        startDate:
+          type: string
+          format: date
+        targetFinishDate:
+          type: string
+          format: date
+      required:
+        - name
+
+    UpdateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        projectType:
+          type: string
+        industry:
+          type: string
+        location:
+          type: string
+        capacity:
+          type: string
+        executionModel:
+          type: string
+        contractStrategy:
+          type: string
+        startDate:
+          type: string
+          format: date
+        targetFinishDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [draft, active, on_hold, completed]
+
+    ProjectSummary:
+      type: object
+      properties:
+        projectId:
+          type: integer
+        totalTasks:
+          type: integer
+        totalMilestones:
+          type: integer
+        totalDependencies:
+          type: integer
+        tasksByStatus:
+          type: object
+          additionalProperties:
+            type: integer
+        tasksByDiscipline:
+          type: object
+          additionalProperties:
+            type: integer
+        completionPercentage:
+          type: number
+        criticalPathLength:
+          type: integer
+        pendingSuggestions:
+          type: integer
+        validationIssues:
+          type: integer
+      required:
+        - projectId
+        - totalTasks
+        - totalMilestones
+        - totalDependencies
+        - tasksByStatus
+        - tasksByDiscipline
+        - completionPercentage
+        - criticalPathLength
+        - pendingSuggestions
+        - validationIssues
+
+    WbsNode:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        parentId:
+          type: integer
+          nullable: true
+        code:
+          type: string
+        name:
+          type: string
+        level:
+          type: integer
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - projectId
+        - code
+        - name
+        - level
+        - sortOrder
+        - createdAt
+
+    CreateWbsNodeRequest:
+      type: object
+      properties:
+        parentId:
+          type: integer
+          nullable: true
+        code:
+          type: string
+        name:
+          type: string
+        level:
+          type: integer
+        sortOrder:
+          type: integer
+      required:
+        - code
+        - name
+        - level
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        wbsNodeId:
+          type: integer
+          nullable: true
+        parentTaskId:
+          type: integer
+          nullable: true
+        taskCode:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [task, summary, milestone]
+        discipline:
+          type: string
+          nullable: true
+        area:
+          type: string
+          nullable: true
+        duration:
+          type: integer
+        durationUnit:
+          type: string
+          enum: [days, weeks, months]
+        startDate:
+          type: string
+          format: date
+          nullable: true
+        endDate:
+          type: string
+          format: date
+          nullable: true
+        isMilestone:
+          type: boolean
+        percentComplete:
+          type: number
+        status:
+          type: string
+          enum: [not_started, in_progress, completed, on_hold]
+        constraintType:
+          type: string
+          nullable: true
+        constraintDate:
+          type: string
+          format: date
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - projectId
+        - taskCode
+        - name
+        - type
+        - duration
+        - durationUnit
+        - isMilestone
+        - percentComplete
+        - status
+        - sortOrder
+        - createdAt
+        - updatedAt
+
+    CreateTaskRequest:
+      type: object
+      properties:
+        wbsNodeId:
+          type: integer
+          nullable: true
+        parentTaskId:
+          type: integer
+          nullable: true
+        taskCode:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [task, summary, milestone]
+        discipline:
+          type: string
+          nullable: true
+        area:
+          type: string
+          nullable: true
+        duration:
+          type: integer
+        durationUnit:
+          type: string
+          enum: [days, weeks, months]
+        startDate:
+          type: string
+          format: date
+          nullable: true
+        endDate:
+          type: string
+          format: date
+          nullable: true
+        isMilestone:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+      required:
+        - name
+        - type
+        - duration
+        - durationUnit
+        - isMilestone
+
+    UpdateTaskRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [task, summary, milestone]
+        discipline:
+          type: string
+          nullable: true
+        area:
+          type: string
+          nullable: true
+        duration:
+          type: integer
+        durationUnit:
+          type: string
+          enum: [days, weeks, months]
+        startDate:
+          type: string
+          format: date
+          nullable: true
+        endDate:
+          type: string
+          format: date
+          nullable: true
+        isMilestone:
+          type: boolean
+        percentComplete:
+          type: number
+        status:
+          type: string
+          enum: [not_started, in_progress, completed, on_hold]
+        notes:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+        wbsNodeId:
+          type: integer
+          nullable: true
+        parentTaskId:
+          type: integer
+          nullable: true
+
+    Dependency:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        predecessorTaskId:
+          type: integer
+        successorTaskId:
+          type: integer
+        relationshipType:
+          type: string
+          enum: [FS, SS, FF, SF]
+        lagValue:
+          type: integer
+        lagUnit:
+          type: string
+          enum: [days, weeks]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - projectId
+        - predecessorTaskId
+        - successorTaskId
+        - relationshipType
+        - lagValue
+        - lagUnit
+        - createdAt
+        - updatedAt
+
+    CreateDependencyRequest:
+      type: object
+      properties:
+        predecessorTaskId:
+          type: integer
+        successorTaskId:
+          type: integer
+        relationshipType:
+          type: string
+          enum: [FS, SS, FF, SF]
+        lagValue:
+          type: integer
+        lagUnit:
+          type: string
+          enum: [days, weeks]
+      required:
+        - predecessorTaskId
+        - successorTaskId
+        - relationshipType
+        - lagValue
+        - lagUnit
+
+    UpdateDependencyRequest:
+      type: object
+      properties:
+        relationshipType:
+          type: string
+          enum: [FS, SS, FF, SF]
+        lagValue:
+          type: integer
+        lagUnit:
+          type: string
+          enum: [days, weeks]
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        messageType:
+          type: string
+          enum: [general, clarification, suggestion, generation_complete]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - projectId
+        - role
+        - content
+        - messageType
+        - createdAt
+
+    ChatMessageRequest:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+
+    ChatMessageResponse:
+      type: object
+      properties:
+        message:
+          $ref: "#/components/schemas/ChatMessage"
+        scheduleGenerated:
+          type: boolean
+        extractedData:
+          type: object
+          nullable: true
+          additionalProperties: true
+      required:
+        - message
+        - scheduleGenerated
+
+    GenerateScheduleResponse:
+      type: object
+      properties:
+        tasksCreated:
+          type: integer
+        dependenciesCreated:
+          type: integer
+        wbsNodesCreated:
+          type: integer
+        suggestionsCreated:
+          type: integer
+      required:
+        - tasksCreated
+        - dependenciesCreated
+        - wbsNodesCreated
+        - suggestionsCreated
+
+    AiSuggestion:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        targetType:
+          type: string
+          enum: [task, dependency, schedule]
+        targetId:
+          type: integer
+          nullable: true
+        suggestionType:
+          type: string
+          enum: [duration_warning, missing_predecessor, missing_successor, sequencing_gap, resource_concern, orphan_task, schedule_quality]
+        message:
+          type: string
+        severity:
+          type: string
+          enum: [info, warning, critical]
+        proposedChange:
+          type: object
+          nullable: true
+          additionalProperties: true
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        createdAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - projectId
+        - targetType
+        - suggestionType
+        - message
+        - severity
+        - status
+        - createdAt
+
+    ValidationIssue:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [error, warning]
+        code:
+          type: string
+        message:
+          type: string
+        affectedTaskIds:
+          type: array
+          items:
+            type: integer
+        affectedDependencyIds:
+          type: array
+          items:
+            type: integer
+      required:
+        - type
+        - code
+        - message
+        - affectedTaskIds
+        - affectedDependencyIds
+
+    ValidationResult:
+      type: object
+      properties:
+        projectId:
+          type: integer
+        isValid:
+          type: boolean
+        errorCount:
+          type: integer
+        warningCount:
+          type: integer
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationIssue"
+      required:
+        - projectId
+        - isValid
+        - errorCount
+        - warningCount
+        - issues
+
+    Template:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        industry:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        isSystemTemplate:
+          type: boolean
+        taskCount:
+          type: integer
+      required:
+        - id
+        - name
+        - category
+        - industry
+        - description
+        - version
+        - isSystemTemplate
+        - taskCount
+
+    ExportResult:
+      type: object
+      properties:
+        projectId:
+          type: integer
+        format:
+          type: string
+        filename:
+          type: string
+        content:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+      required:
+        - projectId
+        - format
+        - filename
+        - content
+        - generatedAt
+
+    ScheduleVersion:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        name:
+          type: string
+        versionNumber:
+          type: integer
+        taskCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          nullable: true
+      required:
+        - id
+        - projectId
+        - name
+        - versionNumber
+        - taskCount
+        - createdAt
+
+    CreateVersionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name

@@ -1,0 +1,834 @@
+<PROJECT>
+  <NAME>AI Chat-Based Construction Scheduling Platform</NAME>
+  <ALIAS>Planning Copilot for Construction Projects</ALIAS>
+  <VERSION>1.0</VERSION>
+  <MODE>One-shot full application generation</MODE>
+  <PRIMARY_LANGUAGE>English</PRIMARY_LANGUAGE>
+  <SECONDARY_LANGUAGE>Russian</SECONDARY_LANGUAGE>
+  <TARGET_USERS>
+    <USER>Project Controls Manager</USER>
+    <USER>Planner / Scheduler</USER>
+    <USER>Project Manager</USER>
+    <USER>Construction Manager</USER>
+    <USER>Engineering Manager</USER>
+  </TARGET_USERS>
+</PROJECT>
+
+<ROLE>
+  Act as a principal solutions architect, senior full-stack engineer, senior product designer, Primavera P6 integration architect, scheduling domain expert, and AI workflow designer.
+  Design and generate a production-oriented web application for construction project planning and schedule generation.
+  The system must be chat-first, AI-native, visually rich, editable, modular, and architected for future enterprise expansion.
+</ROLE>
+
+<CORE_OBJECTIVE>
+  Build a web application where a user can describe a construction or industrial project in natural language through a chat interface, and the system:
+  1. collects and structures project data,
+  2. asks clarifying questions,
+  3. generates a project WBS,
+  4. generates tasks and milestones,
+  5. proposes durations, logic links, and sequencing,
+  6. validates the schedule structure,
+  7. visualizes the result in multiple views,
+  8. allows full interactive editing,
+  9. compares the result against historical and template-based knowledge,
+  10. supports Primavera P6 synchronization from the start of the solution design.
+</CORE_OBJECTIVE>
+
+<IMPORTANT_BUSINESS_CONTEXT>
+  The target domain is large construction and industrial projects, including EPC, EPCM, multi-contract industrial construction, mining, oil and gas, process plants, utilities, and infrastructure.
+  The system is not just a generic task manager. It is a planning and schedule engineering platform.
+  It must be designed around construction planning logic, engineering deliverables, procurement workflows, construction sequencing, and schedule quality.
+</IMPORTANT_BUSINESS_CONTEXT>
+
+<PRODUCT_VISION>
+  The application should feel like a combination of:
+  - AI planning copilot,
+  - schedule builder,
+  - interactive Gantt editor,
+  - network logic editor,
+  - Kanban execution board,
+  - template-driven construction planning system,
+  - future-ready Primavera-connected planning workspace.
+</PRODUCT_VISION>
+
+<MAIN_REQUIREMENTS>
+  <REQ-1>
+    The application must be web-based and responsive, with a modern, premium, enterprise-grade interface.
+  </REQ-1>
+  <REQ-2>
+    The app must support chat-driven schedule generation from user project description.
+  </REQ-2>
+  <REQ-3>
+    The app must contain standard preloaded project templates and historical planning patterns.
+  </REQ-3>
+  <REQ-4>
+    The app must visualize schedules in at least three synchronized views:
+    - Gantt view
+    - Kanban view
+    - Network diagram view
+  </REQ-4>
+  <REQ-5>
+    The app must allow full editing of tasks, dependencies, durations, resources, and hierarchy.
+  </REQ-5>
+  <REQ-6>
+    The app must provide AI-based recommendations for potentially unrealistic durations, missing logic, sequencing gaps, and suspicious resource assumptions.
+  </REQ-6>
+  <REQ-7>
+    Primavera P6 compatibility must be considered from day one in the data model and export/import architecture.
+  </REQ-7>
+  <REQ-8>
+    The app must be architected in a modular way so later phases can add cost, risk, progress, and document control.
+  </REQ-8>
+</MAIN_REQUIREMENTS>
+
+<SCOPE>
+  <IN_SCOPE>
+    <ITEM>Chat-based project input</ITEM>
+    <ITEM>Project questionnaire and clarifying prompts</ITEM>
+    <ITEM>Template-driven WBS generation</ITEM>
+    <ITEM>Task and milestone generation</ITEM>
+    <ITEM>Logic link editing with relationship types</ITEM>
+    <ITEM>Duration and sequencing recommendation engine</ITEM>
+    <ITEM>Interactive Gantt editing</ITEM>
+    <ITEM>Interactive Kanban editing</ITEM>
+    <ITEM>Interactive network diagram editing</ITEM>
+    <ITEM>Task CRUD operations</ITEM>
+    <ITEM>Dependency CRUD operations</ITEM>
+    <ITEM>Validation engine for schedule quality</ITEM>
+    <ITEM>Historical data comparison layer</ITEM>
+    <ITEM>P6-aligned internal schema</ITEM>
+    <ITEM>P6 XML export architecture placeholder or first implementation</ITEM>
+    <ITEM>Import/export-ready backend structure</ITEM>
+  </IN_SCOPE>
+
+  <OUT_OF_SCOPE_FOR_FIRST_RELEASE_BUT_ARCHITE_FOR_LATER>
+    <ITEM>Full cost control module</ITEM>
+    <ITEM>Full risk register module</ITEM>
+    <ITEM>Primavera live direct API synchronization if unavailable</ITEM>
+    <ITEM>Advanced earned value dashboards</ITEM>
+    <ITEM>Multi-tenant enterprise administration</ITEM>
+    <ITEM>Advanced document management</ITEM>
+  </OUT_OF_SCOPE_FOR_FIRST_RELEASE_BUT_ARCHITE_FOR_LATER>
+</SCOPE>
+
+<APPLICATION_STYLE>
+  <DESIGN_LANGUAGE>
+    Minimal, modern, premium enterprise UI.
+    Clean spacing.
+    Strong hierarchy.
+    Calm professional palette.
+    Suitable for planners and project controls professionals.
+  </DESIGN_LANGUAGE>
+
+  <VISUAL_CHARACTER>
+    The app should feel robust, technical, trustworthy, and future-oriented.
+    Avoid childish or gamified style.
+    Use cards, panels, structured sidebars, grids, floating inspector panels, and clear timeline visuals.
+  </VISUAL_CHARACTER>
+
+  <UX_PRINCIPLES>
+    <ITEM>Fast understanding of project structure</ITEM>
+    <ITEM>Minimal friction from chat to schedule</ITEM>
+    <ITEM>Every schedule object is editable</ITEM>
+    <ITEM>Every edit should reflect across all views</ITEM>
+    <ITEM>AI recommendations should be visible but non-blocking</ITEM>
+    <ITEM>User must stay in control; AI suggests, user decides</ITEM>
+  </UX_PRINCIPLES>
+</APPLICATION_STYLE>
+
+<TECH_STACK>
+  <FRONTEND>
+    Use React with TypeScript.
+    Prefer Next.js App Router or Vite React if simpler.
+    Use Tailwind CSS for UI styling.
+    Use a component library only if it accelerates development without bloating the app.
+    Use Zustand or Redux Toolkit for app state.
+  </FRONTEND>
+
+  <BACKEND>
+    Use Node.js or Python FastAPI.
+    Choose the stack that best supports rapid structured API development and future AI workflows.
+    Use REST APIs for primary communication.
+    Use WebSockets or real-time state updates where helpful.
+  </BACKEND>
+
+  <DATABASE>
+    Use PostgreSQL for relational data.
+    Structure data for future compatibility with historical knowledge and template libraries.
+  </DATABASE>
+
+  <AI_LAYER>
+    Architect the system as AI-ready.
+    Create explicit service boundaries for:
+    - prompt orchestration,
+    - schedule reasoning,
+    - recommendations,
+    - validation support,
+    - historical similarity comparison.
+  </AI_LAYER>
+
+  <VISUALIZATION_LIBRARIES>
+    Use appropriate libraries for:
+    - Gantt chart
+    - graph/network rendering
+    - drag-and-drop boards
+    If a library is not ideal, create a practical custom implementation with clean abstractions.
+  </VISUALIZATION_LIBRARIES>
+</TECH_STACK>
+
+<ARCHITECTURE>
+  <ARCHITECTURE_STYLE>
+    Modular service-oriented architecture.
+    It may be implemented initially as a modular monolith with clear service boundaries, but must be structured so it can evolve into microservices later.
+  </ARCHITECTURE_STYLE>
+
+  <SERVICES>
+    <SERVICE name="chat-orchestration-service">
+      Handles user prompts, clarifying questions, structured extraction of project data, and generation workflow orchestration.
+    </SERVICE>
+
+    <SERVICE name="project-configuration-service">
+      Stores project metadata, project type, units, zones, scope assumptions, contract strategy, execution model, calendars, and settings.
+    </SERVICE>
+
+    <SERVICE name="template-library-service">
+      Stores preloaded templates for engineering, procurement, construction, commissioning, infrastructure, and industrial project structures.
+    </SERVICE>
+
+    <SERVICE name="schedule-engine-service">
+      Generates WBS, activities, milestones, durations, logic, calendars, and sequencing rules.
+    </SERVICE>
+
+    <SERVICE name="dependency-management-service">
+      Manages logic links, relationship types, lags, lead/lag editing, validation, and graph integrity.
+    </SERVICE>
+
+    <SERVICE name="validation-service">
+      Detects cycles, orphan tasks, missing predecessors, missing successors, inconsistent logic, unrealistic durations, broken hierarchy, and schedule quality issues.
+    </SERVICE>
+
+    <SERVICE name="ai-recommendation-service">
+      Evaluates new tasks and edits using templates, historical patterns, and rule-based / AI reasoning. Suggests improvements rather than forcing them.
+    </SERVICE>
+
+    <SERVICE name="historical-comparison-service">
+      Matches new tasks or project structures with prior project patterns and standard libraries.
+    </SERVICE>
+
+    <SERVICE name="visualization-state-service">
+      Ensures that Gantt, Kanban, and Network views all reflect one synchronized underlying schedule model.
+    </SERVICE>
+
+    <SERVICE name="p6-integration-service">
+      Handles Primavera-aligned schema translation, import/export mapping, and later direct synchronization support.
+    </SERVICE>
+
+    <SERVICE name="audit-and-change-service">
+      Tracks user edits, AI suggestions accepted or rejected, version history, and schedule change log.
+    </SERVICE>
+  </SERVICES>
+</ARCHITECTURE>
+
+<DATA_MODEL>
+  <ENTITY name="Project">
+    <FIELDS>
+      <FIELD>id</FIELD>
+      <FIELD>name</FIELD>
+      <FIELD>description</FIELD>
+      <FIELD>projectType</FIELD>
+      <FIELD>industry</FIELD>
+      <FIELD>location</FIELD>
+      <FIELD>capacity</FIELD>
+      <FIELD>executionModel</FIELD>
+      <FIELD>contractStrategy</FIELD>
+      <FIELD>startDate</FIELD>
+      <FIELD>targetFinishDate</FIELD>
+      <FIELD>defaultCalendarId</FIELD>
+      <FIELD>createdAt</FIELD>
+      <FIELD>updatedAt</FIELD>
+    </FIELDS>
+  </ENTITY>
+
+  <ENTITY name="ProjectZone">
+    <FIELDS>
+      <FIELD>id</FIELD>
+      <FIELD>projectId</FIELD>
+      <FIELD>name</FIELD>
+      <FIELD>type</FIELD>
+      <FIELD>sequenceOrder</FIELD>
+    </FIELDS>
+  </ENTITY>
+
+  <ENTITY name="WBSNode">
+    <FIELDS>
+      <FIELD>id</FIELD>
+      <FIELD>projectId</FIELD>
+      <FIELD>parentId</FIELD>
+      <FIELD>code</FIELD>
+      <FIELD>name</FIELD>
+      <FIELD>level</FIELD>
+      <FIELD>sortOrder</FIELD>
+    </FIELDS>
+  </ENTITY>
+
+  <ENTITY name="Task">
+    <FIELDS>
+      <FIELD>id</FIELD>
+      <FIELD>projectId</FIELD>
+      <FIELD>wbsNodeId</FIELD>
+      <FIELD>parentTaskId</FIELD>
+      <FIELD>taskCode</FIELD>
+      <FIELD>name</FIELD>
+      <FIELD>type</FIELD>
+      <FIELD>discipline</FIELD>
+      <FIELD>area</FIELD>
+      <FIELD>duration</FIELD>
+      <FIELD>durationUnit</FIELD>
+      <FIELD>startDate</FIELD>
+      <FIELD>endDate</FIELD>
+      <FIELD>isMilestone</FIELD>
+      <FIELD>percentComplete</FIELD>
+      <FIELD>status</FIELD>
+      <FIELD>calendarId</FIELD>
+      <FIELD>constraintType</FIELD>
+      <FIELD>constraintDate</FIELD>
+      <FIELD>notes</FIELD>
+      <FIELD>sourceType</FIELD>
+      <FIELD>createdBy</FIELD>
+      <FIELD>updatedBy</FIELD>
+      <FIELD>createdAt</FIELD>
+      <FIELD>updatedAt</FIELD>
+    </FIELDS>
+  </ENTITY>
+
+  <ENTITY name="Dependency">
+    <FIELDS>
+      <FIELD>id</FIELD>
+      <FIELD>projectId</FIELD>
+      <FIELD>predecessorTaskId</FIELD>
+      <FIELD>successorTaskId</FIELD>
+      <FIELD>relationshipType</FIELD>
+      <FIELD>lagValue</FIELD>
+      <FIELD>lagUnit</FIELD>
+      <FIELD>createdAt</FIELD>
+      <FIELD>updatedAt</FIELD>
+    </FIELDS>
+  </ENTITY>
+
+  <ENTITY name="Resource">
+    <FIELDS>
+      <FIELD>id</FIELD>
+      <FIELD>projectId</FIELD>
+      <FIELD>name</FIELD>
+      <FIELD>resourceType</FIELD>
+      <FIELD>discipline</FIELD>
+      <FIELD>defaultAvailability</FIELD>
+      <FIELD>unitOfMeasure</FIELD>
+    </FIELDS>
+  </ENTITY>
+
+  <ENTITY name="TaskResourceAssignment">
+    <FIELDS>
+      <FIELD>id</FIELD>
+      <FIELD>taskId</FIELD>
+      <FIELD>resourceId</FIELD>
+      <FIELD>plannedUnits</FIELD>
+      <FIELD>plannedHours</FIELD>
+      <FIELD>notes</FIELD>
+    </FIELDS>
+  </ENTITY>
+
+  <ENTITY name="Template">
+    <FIELDS>
+      <FIELD>id</FIELD>
+      <FIELD>name</FIELD>
+      <FIELD>category</FIELD>
+      <FIELD>industry</FIELD>
+      <FIELD>description</FIELD>
+      <FIELD>version</FIELD>
+      <FIELD>isSystemTemplate</FIELD>
+    </FIELDS>
+  </ENTITY>
+
+  <ENTITY name="HistoricalPattern">
+    <FIELDS>
+      <FIELD>id</FIELD>
+      <FIELD>name</FIELD>
+      <FIELD>category</FIELD>
+      <FIELD>sourceProjectType</FIELD>
+      <FIELD>discipline</FIELD>
+      <FIELD>patternData</FIELD>
+      <FIELD>confidenceScore</FIELD>
+    </FIELDS>
+  </ENTITY>
+
+  <ENTITY name="AISuggestion">
+    <FIELDS>
+      <FIELD>id</FIELD>
+      <FIELD>projectId</FIELD>
+      <FIELD>targetType</FIELD>
+      <FIELD>targetId</FIELD>
+      <FIELD>suggestionType</FIELD>
+      <FIELD>message</FIELD>
+      <FIELD>severity</FIELD>
+      <FIELD>proposedChangeJson</FIELD>
+      <FIELD>status</FIELD>
+      <FIELD>createdAt</FIELD>
+      <FIELD>resolvedAt</FIELD>
+    </FIELDS>
+  </ENTITY>
+
+  <ENTITY name="ScheduleVersion">
+    <FIELDS>
+      <FIELD>id</FIELD>
+      <FIELD>projectId</FIELD>
+      <FIELD>name</FIELD>
+      <FIELD>versionNumber</FIELD>
+      <FIELD>snapshotJson</FIELD>
+      <FIELD>createdAt</FIELD>
+      <FIELD>createdBy</FIELD>
+    </FIELDS>
+  </ENTITY>
+</DATA_MODEL>
+
+<FUNCTIONAL_MODULES>
+  <MODULE name="1-chat-driven-input">
+    <PURPOSE>
+      Capture project intent and planning input through structured conversational UX.
+    </PURPOSE>
+
+    <FUNCTIONS>
+      <ITEM>User enters natural language description of project</ITEM>
+      <ITEM>System extracts known parameters</ITEM>
+      <ITEM>System asks clarifying questions for missing data</ITEM>
+      <ITEM>System stores structured responses in project model</ITEM>
+      <ITEM>System can propose template selection based on project type</ITEM>
+    </FUNCTIONS>
+
+    <EXAMPLE_FLOW>
+      User says: "Create a schedule for an industrial construction project for a water treatment facility with civil, mechanical, electrical, and commissioning scope."
+      System asks:
+      - location?
+      - target capacity?
+      - number of process areas?
+      - contract strategy?
+      - design maturity?
+      - key milestones?
+      - desired schedule level?
+    </EXAMPLE_FLOW>
+  </MODULE>
+
+  <MODULE name="2-template-and-standard-library">
+    <PURPOSE>
+      Provide reusable standard structures for construction planning.
+    </PURPOSE>
+
+    <REQUIRED_TEMPLATE_GROUPS>
+      <ITEM>Engineering deliverables</ITEM>
+      <ITEM>Procurement packages</ITEM>
+      <ITEM>Construction work packages</ITEM>
+      <ITEM>Commissioning and startup packages</ITEM>
+      <ITEM>Industrial disciplines: Civil, Structural, Mechanical, Piping, E&amp;I, Instrumentation, Architectural, Utilities</ITEM>
+      <ITEM>Project phases: Concept, FEED, Detailed Engineering, Procurement, Construction, Pre-commissioning, Commissioning, Handover</ITEM>
+    </REQUIRED_TEMPLATE_GROUPS>
+
+    <SYSTEM_BEHAVIOR>
+      Templates should be selectable, mergeable, and extendable.
+      The user can start from a template, from chat, or from both.
+    </SYSTEM_BEHAVIOR>
+  </MODULE>
+
+  <MODULE name="3-wbs-and-activity-generation">
+    <PURPOSE>
+      Transform user input into WBS and detailed activities.
+    </PURPOSE>
+
+    <FUNCTIONS>
+      <ITEM>Generate hierarchical WBS</ITEM>
+      <ITEM>Generate activities by phase, discipline, and area</ITEM>
+      <ITEM>Create milestones</ITEM>
+      <ITEM>Propose activity coding</ITEM>
+      <ITEM>Allow user refinement and expansion</ITEM>
+    </FUNCTIONS>
+
+    <RULES>
+      <RULE>Support summary levels and detailed levels</RULE>
+      <RULE>Support discipline-driven and area-driven breakdowns</RULE>
+      <RULE>Support industrial project logic</RULE>
+      <RULE>Create reasonable starter logic even if user data is incomplete</RULE>
+    </RULES>
+  </MODULE>
+
+  <MODULE name="4-duration-and-sequencing-engine">
+    <PURPOSE>
+      Build realistic task sequencing and preliminary durations.
+    </PURPOSE>
+
+    <FUNCTIONS>
+      <ITEM>Assign initial durations</ITEM>
+      <ITEM>Assign dependency relationships</ITEM>
+      <ITEM>Suggest parallel and serial logic</ITEM>
+      <ITEM>Apply project calendars</ITEM>
+      <ITEM>Support milestones and constraints</ITEM>
+    </FUNCTIONS>
+
+    <DEPENDENCY_TYPES>
+      <TYPE>FS</TYPE>
+      <TYPE>SS</TYPE>
+      <TYPE>FF</TYPE>
+      <TYPE>SF</TYPE>
+    </DEPENDENCY_TYPES>
+
+    <RULES>
+      <RULE>System must allow lag input</RULE>
+      <RULE>System must visually show dependency types</RULE>
+      <RULE>System must prevent accidental invalid cycles</RULE>
+    </RULES>
+  </MODULE>
+
+  <MODULE name="5-visualization-layer">
+    <PURPOSE>
+      Provide three synchronized visual views of the same schedule dataset.
+    </PURPOSE>
+
+    <VIEWS>
+      <VIEW name="Gantt">
+        <FEATURES>
+          <ITEM>Timeline scale controls</ITEM>
+          <ITEM>Zoom by day/week/month/quarter</ITEM>
+          <ITEM>Task bars</ITEM>
+          <ITEM>Milestones</ITEM>
+          <ITEM>Dependency lines</ITEM>
+          <ITEM>Critical path highlighting placeholder or implementation</ITEM>
+          <ITEM>Inline task edit</ITEM>
+          <ITEM>Drag to move bars</ITEM>
+          <ITEM>Drag bar edges to change duration</ITEM>
+        </FEATURES>
+      </VIEW>
+
+      <VIEW name="Kanban">
+        <FEATURES>
+          <ITEM>Status columns</ITEM>
+          <ITEM>Area or discipline grouping options</ITEM>
+          <ITEM>Drag-and-drop cards</ITEM>
+          <ITEM>Task quick edit</ITEM>
+          <ITEM>Card metadata chips: duration, discipline, WBS, milestone flag</ITEM>
+        </FEATURES>
+      </VIEW>
+
+      <VIEW name="NetworkDiagram">
+        <FEATURES>
+          <ITEM>Task nodes</ITEM>
+          <ITEM>Dependency edges</ITEM>
+          <ITEM>Zoom and pan</ITEM>
+          <ITEM>Node edit drawer</ITEM>
+          <ITEM>Visual grouping by phase/discipline/area</ITEM>
+          <ITEM>Relationship type visibility</ITEM>
+        </FEATURES>
+      </VIEW>
+    </VIEWS>
+
+    <SYNC_RULE>
+      All three views must operate on one canonical schedule model.
+      Any edit in any view must immediately propagate to all others.
+    </SYNC_RULE>
+  </MODULE>
+
+  <MODULE name="6-interactive-editing">
+    <PURPOSE>
+      Give the user full control over schedule modification.
+    </PURPOSE>
+
+    <REQUIRED_EDIT_ACTIONS>
+      <ITEM>Add task anywhere</ITEM>
+      <ITEM>Delete task</ITEM>
+      <ITEM>Edit task metadata</ITEM>
+      <ITEM>Move task in hierarchy</ITEM>
+      <ITEM>Change duration</ITEM>
+      <ITEM>Convert task to milestone and reverse if needed</ITEM>
+      <ITEM>Add dependency</ITEM>
+      <ITEM>Delete dependency</ITEM>
+      <ITEM>Edit relationship type</ITEM>
+      <ITEM>Edit lag</ITEM>
+      <ITEM>Duplicate task or group</ITEM>
+    </REQUIRED_EDIT_ACTIONS>
+
+    <DRAG_DROP_DEPENDENCY_BEHAVIOR>
+      When the user drags from one task/card/node to another, open a modal dialog that asks:
+      - relationship type: FS / SS / FF / SF
+      - lag value
+      - lag unit
+      Then create the dependency if valid.
+    </DRAG_DROP_DEPENDENCY_BEHAVIOR>
+  </MODULE>
+
+  <MODULE name="7-validation-engine">
+    <PURPOSE>
+      Check schedule consistency and planning quality.
+    </PURPOSE>
+
+    <CHECKS>
+      <ITEM>Cycle detection</ITEM>
+      <ITEM>Orphan tasks</ITEM>
+      <ITEM>Tasks without predecessors where required</ITEM>
+      <ITEM>Tasks without successors where required</ITEM>
+      <ITEM>Duration outliers</ITEM>
+      <ITEM>Milestones used incorrectly</ITEM>
+      <ITEM>Broken parent-child logic</ITEM>
+      <ITEM>Constraint misuse placeholder</ITEM>
+      <ITEM>Missing area/discipline classification</ITEM>
+    </CHECKS>
+
+    <OUTPUT>
+      Show warnings and errors in a validation panel with clickable navigation to offending objects.
+    </OUTPUT>
+  </MODULE>
+
+  <MODULE name="8-ai-recommendation-engine">
+    <PURPOSE>
+      Use AI and historical logic to improve planning quality.
+    </PURPOSE>
+
+    <FUNCTIONS>
+      <ITEM>Recommend duration adjustments</ITEM>
+      <ITEM>Suggest missing predecessor or successor logic</ITEM>
+      <ITEM>Detect suspicious resource assumptions</ITEM>
+      <ITEM>Recommend standard sequences based on similar project patterns</ITEM>
+      <ITEM>Propose missing activities for a selected scope</ITEM>
+    </FUNCTIONS>
+
+    <UX_RULE>
+      AI must suggest, explain, and allow accept/reject.
+      Do not silently overwrite user data.
+    </UX_RULE>
+
+    <EXPLANATION_STYLE>
+      Each AI recommendation should show:
+      - issue detected
+      - why it may be a problem
+      - proposed improvement
+      - confidence level
+    </EXPLANATION_STYLE>
+  </MODULE>
+
+  <MODULE name="9-historical-and-reference-intelligence">
+    <PURPOSE>
+      Compare project data against prior patterns and standardized activity libraries.
+    </PURPOSE>
+
+    <FUNCTIONS>
+      <ITEM>Match project type to known patterns</ITEM>
+      <ITEM>Compare task durations to reference ranges</ITEM>
+      <ITEM>Compare sequencing to standard logic chains</ITEM>
+      <ITEM>Support future learning from accepted user changes</ITEM>
+    </FUNCTIONS>
+  </MODULE>
+
+  <MODULE name="10-primavera-p6-compatibility">
+    <PURPOSE>
+      Ensure the platform is designed for Primavera P6 integration from the start.
+    </PURPOSE>
+
+    <REQUIREMENTS>
+      <ITEM>Internal data model should map to P6 concepts</ITEM>
+      <ITEM>Activities, WBS, relationships, calendars, milestones, and codes must be representable in a P6-aligned form</ITEM>
+      <ITEM>Design export pipeline for P6 XML first</ITEM>
+      <ITEM>Design architecture placeholder for future import and round-trip synchronization</ITEM>
+    </REQUIREMENTS>
+
+    <MAPPING_EXAMPLES>
+      <MAP>Task -> Activity</MAP>
+      <MAP>WBSNode -> WBS</MAP>
+      <MAP>Dependency -> Relationship</MAP>
+      <MAP>Milestone Task -> Start/Finish Milestone Activity</MAP>
+      <MAP>Calendar -> Calendar</MAP>
+    </MAPPING_EXAMPLES>
+  </MODULE>
+</FUNCTIONAL_MODULES>
+
+<USER_INTERFACE_LAYOUT>
+  <MAIN_LAYOUT>
+    Use a professional split-screen workspace.
+  </MAIN_LAYOUT>
+
+  <LEFT_PANEL>
+    Chat assistant panel.
+    Project context panel.
+    Structured input summary panel.
+    Template suggestions.
+  </LEFT_PANEL>
+
+  <CENTER_PANEL>
+    Main active visualization area.
+    Switchable tabs for Gantt / Kanban / Network.
+  </CENTER_PANEL>
+
+  <RIGHT_PANEL>
+    Inspector / properties drawer.
+    Validation panel.
+    AI suggestions panel.
+    Dependency editor.
+  </RIGHT_PANEL>
+
+  <TOP_BAR>
+    Project name.
+    Save status.
+    View switcher.
+    Export menu.
+    Version history access.
+  </TOP_BAR>
+</USER_INTERFACE_LAYOUT>
+
+<USER_FLOWS>
+  <FLOW name="new-project-from-chat">
+    1. User starts a new project
+    2. User describes project in natural language
+    3. System extracts metadata
+    4. System asks clarifying questions
+    5. System proposes a template or hybrid structure
+    6. System generates initial WBS and schedule
+    7. User reviews Gantt, Kanban, Network
+    8. User edits tasks and logic
+    9. System validates and suggests improvements
+    10. User exports or saves version
+  </FLOW>
+
+  <FLOW name="task-editing">
+    1. User clicks task
+    2. Inspector opens
+    3. User changes duration, logic, area, discipline, notes
+    4. System revalidates
+    5. AI recommendations update
+    6. All views sync
+  </FLOW>
+
+  <FLOW name="add-dependency-drag">
+    1. User drags connection from source task to target task
+    2. Modal opens
+    3. User selects relationship type and lag
+    4. System validates
+    5. Dependency created
+    6. Gantt and Network update
+  </FLOW>
+</USER_FLOWS>
+
+<API_REQUIREMENTS>
+  <STYLE>
+    Clean REST API with explicit resources and future AI endpoints.
+  </STYLE>
+
+  <EXAMPLE_ENDPOINTS>
+    <ENDPOINT>POST /api/projects</ENDPOINT>
+    <ENDPOINT>GET /api/projects/:id</ENDPOINT>
+    <ENDPOINT>POST /api/projects/:id/chat/extract</ENDPOINT>
+    <ENDPOINT>POST /api/projects/:id/chat/clarify</ENDPOINT>
+    <ENDPOINT>POST /api/projects/:id/generate-wbs</ENDPOINT>
+    <ENDPOINT>POST /api/projects/:id/generate-schedule</ENDPOINT>
+    <ENDPOINT>GET /api/projects/:id/tasks</ENDPOINT>
+    <ENDPOINT>POST /api/projects/:id/tasks</ENDPOINT>
+    <ENDPOINT>PUT /api/tasks/:taskId</ENDPOINT>
+    <ENDPOINT>DELETE /api/tasks/:taskId</ENDPOINT>
+    <ENDPOINT>POST /api/projects/:id/dependencies</ENDPOINT>
+    <ENDPOINT>PUT /api/dependencies/:dependencyId</ENDPOINT>
+    <ENDPOINT>DELETE /api/dependencies/:dependencyId</ENDPOINT>
+    <ENDPOINT>GET /api/projects/:id/validation</ENDPOINT>
+    <ENDPOINT>GET /api/projects/:id/ai-suggestions</ENDPOINT>
+    <ENDPOINT>POST /api/projects/:id/export/p6-xml</ENDPOINT>
+    <ENDPOINT>POST /api/projects/:id/version/snapshot</ENDPOINT>
+  </EXAMPLE_ENDPOINTS>
+</API_REQUIREMENTS>
+
+<NON_FUNCTIONAL_REQUIREMENTS>
+  <PERFORMANCE>
+    The UI must remain smooth and responsive for reasonably sized schedules.
+    Architect for larger schedules later.
+  </PERFORMANCE>
+
+  <SCALABILITY>
+    Keep service boundaries clear for future extraction to microservices.
+  </SCALABILITY>
+
+  <MAINTAINABILITY>
+    Use clear folder structure, typed models, reusable services, and modular UI components.
+  </MAINTAINABILITY>
+
+  <AUDITABILITY>
+    Track user edits and AI recommendations with timestamps.
+  </AUDITABILITY>
+
+  <RELIABILITY>
+    Use robust validation and defensive programming.
+  </RELIABILITY>
+</NON_FUNCTIONAL_REQUIREMENTS>
+
+<DELIVERABLES>
+  <DELIVERABLE>Frontend application</DELIVERABLE>
+  <DELIVERABLE>Backend application</DELIVERABLE>
+  <DELIVERABLE>Database schema and migrations</DELIVERABLE>
+  <DELIVERABLE>Seed data for templates</DELIVERABLE>
+  <DELIVERABLE>AI service boundary abstraction</DELIVERABLE>
+  <DELIVERABLE>Schedule editing workflows</DELIVERABLE>
+  <DELIVERABLE>Validation engine</DELIVERABLE>
+  <DELIVERABLE>P6 export architecture and first implementation if feasible</DELIVERABLE>
+  <DELIVERABLE>README with run instructions</DELIVERABLE>
+  <DELIVERABLE>Architecture summary</DELIVERABLE>
+</DELIVERABLES>
+
+<CODE_QUALITY_REQUIREMENTS>
+  <ITEM>Use TypeScript where possible</ITEM>
+  <ITEM>Create strongly typed domain models</ITEM>
+  <ITEM>Do not hardcode everything in one file</ITEM>
+  <ITEM>Use clean separation between UI, services, domain logic, and persistence</ITEM>
+  <ITEM>Provide realistic mock data and seed data</ITEM>
+  <ITEM>Implement pragmatic error handling</ITEM>
+  <ITEM>Comment only where useful</ITEM>
+  <ITEM>Use readable naming</ITEM>
+</CODE_QUALITY_REQUIREMENTS>
+
+<SEED_DATA_REQUIREMENTS>
+  Preload the app with:
+  - at least one industrial project example,
+  - several template groups,
+  - example tasks for engineering,
+  - example procurement chain,
+  - example construction activities,
+  - example milestones,
+  - example AI suggestions,
+  - example dependency relationships.
+</SEED_DATA_REQUIREMENTS>
+
+<MVP_PRIORITIES>
+  <PRIORITY-1>Chat-based project setup</PRIORITY-1>
+  <PRIORITY-2>Template-assisted WBS generation</PRIORITY-2>
+  <PRIORITY-3>Editable Gantt view</PRIORITY-3>
+  <PRIORITY-4>Synchronized Kanban and Network views</PRIORITY-4>
+  <PRIORITY-5>Dependency editing with modal relationship selection</PRIORITY-5>
+  <PRIORITY-6>Validation panel</PRIORITY-6>
+  <PRIORITY-7>AI suggestion panel</PRIORITY-7>
+  <PRIORITY-8>P6-aligned export structure</PRIORITY-8>
+</MVP_PRIORITIES>
+
+<IMPLEMENTATION_GUIDANCE>
+  Build this as a real structured application, not a toy prototype.
+  Where full enterprise implementation is too large for one pass, create a coherent, working MVP with proper architecture and clear placeholders.
+  Prefer completeness of architecture plus usable core workflows over superficial breadth.
+  The result must look credible to a project controls professional.
+</IMPLEMENTATION_GUIDANCE>
+
+<OUTPUT_FORMAT>
+  Generate:
+  1. full project structure,
+  2. all key frontend and backend files,
+  3. database schema,
+  4. seed scripts,
+  5. README,
+  6. architecture notes,
+  7. working sample UI,
+  8. representative mock AI logic where full model integration is not possible.
+</OUTPUT_FORMAT>
+
+<FINAL_INSTRUCTION>
+  Start implementing immediately.
+  Make reasonable product and engineering decisions without asking unnecessary questions.
+  If something cannot be fully implemented in one pass, implement the best working version and clearly structure the code for the next phase.
+</FINAL_INSTRUCTION>

@@ -1,8 +1,8 @@
-# Workspace
+# Planning Copilot
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+AI Chat-Based Construction Scheduling Platform. A professional-grade planning workspace for project controls teams working on large EPC, mining, oil & gas, and industrial projects.
 
 ## Stack
 
@@ -14,83 +14,124 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Database**: PostgreSQL + Drizzle ORM
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **Build**: esbuild (ESM bundle)
+- **Frontend**: React + Vite + Tailwind CSS
 
 ## Structure
 
 ```text
 artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
-├── lib/                    # Shared libraries
-│   ├── api-spec/           # OpenAPI spec + Orval codegen config
-│   ├── api-client-react/   # Generated React Query hooks
-│   ├── api-zod/            # Generated Zod schemas from OpenAPI
-│   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+├── artifacts/
+│   ├── api-server/        # Express API server
+│   └── planning-copilot/  # React + Vite frontend
+├── lib/
+│   ├── api-spec/          # OpenAPI spec + Orval codegen config
+│   ├── api-client-react/  # Generated React Query hooks
+│   ├── api-zod/           # Generated Zod schemas
+│   └── db/                # Drizzle ORM schema + DB connection
+├── scripts/               # Utility scripts
+├── pnpm-workspace.yaml
+├── tsconfig.base.json
+├── tsconfig.json
+└── package.json
 ```
 
-## TypeScript & Composite Projects
+## Application Architecture
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+### Frontend (artifacts/planning-copilot)
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+- **Home page** (`/`): Project list with stats, "New Project" dialog, template library
+- **Project Workspace** (`/projects/:id`): 3-panel layout
+  - Left: AI chat panel with schedule generation trigger
+  - Center: Gantt / Kanban / Network views (tabbed)
+  - Right: Inspector / AI Suggestions / Validation panels
+- **Top bar**: Project name, status, Export P6 XML, version history, settings
 
-## Root Scripts
+### Backend Services (artifacts/api-server)
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+All routes mounted at `/api`:
 
-## Packages
+| Route | Purpose |
+|-------|---------|
+| `GET /projects` | List all projects |
+| `POST /projects` | Create project |
+| `GET /projects/:id/summary` | Schedule summary stats |
+| `GET /projects/:id/tasks` | Get tasks |
+| `POST /projects/:id/tasks` | Create task |
+| `PUT /tasks/:id` | Update task |
+| `DELETE /tasks/:id` | Delete task |
+| `GET/POST /projects/:id/dependencies` | Dependencies |
+| `PUT/DELETE /dependencies/:id` | Edit dependency |
+| `GET/POST /projects/:id/wbs` | WBS nodes |
+| `POST /projects/:id/chat/message` | AI chat |
+| `GET /projects/:id/chat/history` | Chat history |
+| `POST /projects/:id/chat/generate-schedule` | Generate full schedule |
+| `GET /projects/:id/ai-suggestions` | AI suggestions |
+| `POST /ai-suggestions/:id/accept` | Accept suggestion |
+| `POST /ai-suggestions/:id/reject` | Reject suggestion |
+| `GET /projects/:id/validation` | Schedule validation |
+| `GET /templates` | Template library |
+| `POST /projects/:id/export/p6-xml` | P6 XML export |
+| `GET/POST /projects/:id/versions` | Version history |
 
-### `artifacts/api-server` (`@workspace/api-server`)
+### Database Schema (lib/db/src/schema/)
 
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
+- `projects` — Project metadata (type, industry, dates, status)
+- `wbs_nodes` — WBS hierarchy with parent-child relationships
+- `tasks` — Activities and milestones (P6-aligned fields)
+- `dependencies` — Logic links with FS/SS/FF/SF relationships and lag
+- `chat_messages` — Conversation history per project
+- `ai_suggestions` — AI-generated recommendations with accept/reject
+- `templates` — System template library (10 seeded templates)
+- `schedule_versions` — Snapshot versioning
 
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+### Key Features
 
-### `lib/db` (`@workspace/db`)
+1. **Chat-Driven Scheduling**: Describe project → AI extracts data, asks clarifying questions → Generate Schedule button creates full WBS + tasks + dependencies
+2. **Gantt View**: Custom timeline with task bars, milestones (diamonds), dependency lines, zoom controls
+3. **Kanban View**: Drag-and-drop status columns (Not Started / In Progress / Completed / On Hold)
+4. **Network View**: SVG-based dependency graph with zoom and pan
+5. **AI Suggestions Panel**: Shows duration warnings, missing logic, resource conflicts — accept/reject workflow
+6. **Validation Engine**: Cycle detection, orphan tasks, missing dates, zero-duration tasks, discipline checks
+7. **P6 Export**: Primavera P6 XML format export with WBS, activities, and relationships
+8. **Version History**: Schedule snapshots for baseline comparison
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
+### Primavera P6 Alignment
 
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
+The data model is designed to map to P6 concepts:
+- Task → Activity
+- WbsNode → WBS
+- Dependency → Relationship (FS/SS/FF/SF with lag)
+- Milestone Task → Start/Finish Milestone Activity
+- taskCode → Activity ID
 
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
+## Development
 
-### `lib/api-spec` (`@workspace/api-spec`)
+```bash
+# Start API server
+pnpm --filter @workspace/api-server run dev
 
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
+# Start frontend
+pnpm --filter @workspace/planning-copilot run dev
 
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
+# Push DB schema changes
+pnpm --filter @workspace/db run push
 
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
+# Run codegen after OpenAPI spec changes
+pnpm --filter @workspace/api-spec run codegen
+```
 
-### `lib/api-zod` (`@workspace/api-zod`)
+## Seed Data
 
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
+- 1 demo project (Greenfield Water Treatment Plant - Phase 1, Brisbane)
+- 10 system templates across Construction, Engineering, Procurement, Commissioning, Infrastructure categories
+- Schedule generates 37 tasks + 37 dependencies + 5 AI suggestions when "Generate Schedule" is triggered
 
-### `lib/api-client-react` (`@workspace/api-client-react`)
+## Future Expansion (Out of Scope for v1)
 
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+- Cost control module
+- Risk register module
+- Primavera P6 live API synchronization
+- Earned value dashboards
+- Multi-tenant enterprise administration
+- Document management

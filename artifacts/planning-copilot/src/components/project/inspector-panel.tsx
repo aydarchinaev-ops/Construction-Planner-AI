@@ -120,7 +120,7 @@ export default function InspectorPanel({ projectId, taskId }: { projectId: numbe
     if (isNaN(succId)) return;
     
     createDep.mutate(
-      { data: { predecessorTaskId: taskId, successorTaskId: succId, relationshipType: newDepType, lagValue: 0, lagUnit: "days" } },
+      { projectId, data: { predecessorTaskId: taskId, successorTaskId: succId, relationshipType: newDepType, lagValue: 0, lagUnit: "days" } },
       {
         onSuccess: () => {
           toast.success("Dependency added");

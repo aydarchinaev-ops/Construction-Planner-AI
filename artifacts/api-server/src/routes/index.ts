@@ -21,6 +21,13 @@ router.use("/tasks", taskRouter);
 router.use("/projects/:projectId/dependencies", projectDepsRouter);
 router.use("/dependencies", depRouter);
 router.use("/projects/:projectId/chat", chatRouter);
+
+// Also expose generate-schedule at the path the API spec expects (without /chat prefix)
+router.post("/projects/:projectId/generate-schedule", (req, res, next) => {
+  req.url = "/generate-schedule";
+  (chatRouter as any).handle(req, res, next);
+});
+
 router.use("/projects/:projectId/ai-suggestions", projectSuggestionsRouter);
 router.use("/ai-suggestions", suggestionRouter);
 router.use("/projects/:projectId/validation", validationRouter);

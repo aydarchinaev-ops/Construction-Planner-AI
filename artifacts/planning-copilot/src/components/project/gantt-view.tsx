@@ -44,15 +44,15 @@ export default function GanttView({ projectId, selectedTaskId, onSelectTask }: {
   const handleCreateTask = () => {
     createTask.mutate(
       { 
+        projectId,
         data: { 
-          projectId, 
           name: "New Activity", 
           duration: 5, 
           durationUnit: "days", 
           type: "task",
           isMilestone: false
         } 
-      } as any,
+      },
       {
         onSuccess: (newTask) => {
           queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/tasks`] });

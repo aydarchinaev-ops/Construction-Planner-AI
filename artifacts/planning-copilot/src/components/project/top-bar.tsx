@@ -76,7 +76,7 @@ export default function TopBar({ project, activeView }: { project: any, activeVi
 
   const handleExport = () => {
     exportXml.mutate(
-      { data: { projectId: project.id } },
+      { projectId: project.id },
       {
         onSuccess: (res) => {
           const blob = new Blob([res.content], { type: 'text/xml' });

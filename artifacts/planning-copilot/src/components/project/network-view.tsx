@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useGetTasks, useGetDependencies } from "@workspace/api-client-react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ZoomIn, ZoomOut, Maximize } from "lucide-react";
 
 // A very simplified static layout algorithm for the network diagram.
 // In a real pro app, we'd use a layout engine like Dagre.
@@ -63,6 +63,7 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
   const LAYER_WIDTH = 250;
   const NODE_HEIGHT = 80;
   const V_SPACE = 40;
+  const NODE_WIDTH = 180;
 
   const layerCounts: Record<number, number> = {};
   const nodePositions: Record<number, { x: number, y: number }> = {};
@@ -78,6 +79,59 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
     
     layerCounts[layer] = indexInLayer + 1;
   });
+
+  // Derived state for linked tasks
+  const linkedTaskIds = useMemo(() => {
+    if (!selectedTaskId) return new Set<number>();
+    
+    const linked = new Set<number>([selectedTaskId]);
+    dependencies.forEach(dep => {
+      if (dep.predecessorTaskId === selectedTaskId) linked.add(dep.successorTaskId);
+      if (dep.successorTaskId === selectedTaskId) linked.add(dep.predecessorTaskId);
+    });
+    return linked;
+  }, [selectedTaskId, dependencies]);
+
+  // Zoom to fit selection
+  useEffect(() => {
+    if (!selectedTaskId || !containerRef.current) return;
+    
+    const container = containerRef.current.getBoundingClientRect();
+    const margin = 100;
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    let hasNodes = false;
+
+    linkedTaskIds.forEach(id => {
+      const pos = nodePositions[id];
+      if (pos) {
+        hasNodes = true;
+        minX = Math.min(minX, pos.x);
+        minY = Math.min(minY, pos.y);
+        maxX = Math.max(maxX, pos.x + NODE_WIDTH);
+        maxY = Math.max(maxY, pos.y + NODE_HEIGHT);
+      }
+    });
+
+    if (!hasNodes) return;
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+    
+    let scale = Math.min(
+      (container.width - margin * 2) / Math.max(width, 1),
+      (container.height - margin * 2) / Math.max(height, 1),
+      1.2 // Max zoom scale when selecting
+    );
+
+    const centerX = minX + width / 2;
+    const centerY = minY + height / 2;
+
+    const tx = container.width / 2 - centerX * scale;
+    const ty = container.height / 2 - centerY * scale;
+
+    setTransform({ x: tx, y: ty, scale });
+  }, [selectedTaskId, linkedTaskIds, activeTasks.length]);
 
   // Pan and Zoom handlers
   const handleWheel = (e: React.WheelEvent) => {
@@ -123,11 +177,9 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
     e.currentTarget.releasePointerCapture(e.pointerId);
   };
 
-  const NODE_WIDTH = 180;
-
   return (
     <div 
-      className="h-full w-full overflow-hidden bg-slate-50 cursor-grab active:cursor-grabbing bg-grid select-none" 
+      className="h-full w-full overflow-hidden bg-slate-50 cursor-grab active:cursor-grabbing bg-grid select-none relative" 
       ref={containerRef}
       onWheel={handleWheel}
       onPointerDown={handlePointerDown}
@@ -136,19 +188,34 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
       style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '24px 24px' }}
     >
       <div 
-        className="w-full h-full origin-top-left"
+        className="w-full h-full origin-top-left transition-transform duration-300 ease-out"
         style={{ transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})` }}
       >
         <svg className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none">
           <defs>
-            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
             </marker>
-            <marker id="arrow-selected" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="arrow-selected" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
+            </marker>
+            <marker id="arrow-shaded" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#e2e8f0" />
             </marker>
           </defs>
           
+          <style>{`
+            @keyframes link-flow {
+              to {
+                stroke-dashoffset: -24;
+              }
+            }
+            .animate-flow {
+              stroke-dasharray: 8 4;
+              animation: link-flow 0.5s linear infinite;
+            }
+          `}</style>
+
           {dependencies.map(dep => {
             const pred = nodePositions[dep.predecessorTaskId];
             const succ = nodePositions[dep.successorTaskId];
@@ -159,21 +226,22 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
             const x2 = succ.x;
             const y2 = succ.y + NODE_HEIGHT / 2;
 
-            const isSelected = selectedTaskId === dep.predecessorTaskId || selectedTaskId === dep.successorTaskId;
+            const isLinkSelected = selectedTaskId === dep.predecessorTaskId || selectedTaskId === dep.successorTaskId;
+            const isDimmedLink = selectedTaskId !== null && !isLinkSelected;
 
-            // Basic bezier routing
+            // Rectangular routing
             const controlPointX = x1 + (x2 - x1) / 2;
-            const path = `M ${x1} ${y1} C ${controlPointX} ${y1}, ${controlPointX} ${y2}, ${x2} ${y2}`;
+            const path = `M ${x1} ${y1} L ${controlPointX} ${y1} L ${controlPointX} ${y2} L ${x2} ${y2}`;
 
             return (
-              <g key={dep.id}>
+              <g key={dep.id} className={isDimmedLink ? "opacity-30" : "opacity-100"}>
                 <path
                   d={path}
                   fill="none"
-                  stroke={isSelected ? "#3b82f6" : "#cbd5e1"}
-                  strokeWidth={isSelected ? 2.5 : 1.5}
-                  markerEnd={isSelected ? "url(#arrow-selected)" : "url(#arrow)"}
-                  className="transition-colors"
+                  stroke={isLinkSelected ? "#3b82f6" : "#cbd5e1"}
+                  strokeWidth={isLinkSelected ? 2.5 : 1.5}
+                  markerEnd={isLinkSelected ? "url(#arrow-selected)" : isDimmedLink ? "url(#arrow-shaded)" : "url(#arrow)"}
+                  className={`transition-all duration-300 ${isLinkSelected ? 'animate-flow' : ''}`}
                 />
                 {/* Relationship label */}
                 <rect 
@@ -183,7 +251,7 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
                   height="16" 
                   fill="white" 
                   rx="4" 
-                  stroke={isSelected ? "#bfdbfe" : "#f1f5f9"}
+                  stroke={isLinkSelected ? "#bfdbfe" : "#f1f5f9"}
                 />
                 <text 
                   x={(x1+x2)/2} 
@@ -191,7 +259,7 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
                   textAnchor="middle" 
                   fontSize="8" 
                   fontFamily="monospace"
-                  fill={isSelected ? "#2563eb" : "#64748b"}
+                  fill={isLinkSelected ? "#2563eb" : "#64748b"}
                   fontWeight="bold"
                 >
                   {dep.relationshipType}
@@ -205,12 +273,15 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
           const pos = nodePositions[task.id];
           if (!pos) return null;
           const isSelected = selectedTaskId === task.id;
+          const isLinked = linkedTaskIds.has(task.id);
+          const isDimmed = selectedTaskId !== null && !isLinked;
 
           return (
             <div
               key={task.id}
-              className={`absolute bg-white rounded-lg border-2 shadow-sm transition-colors cursor-pointer overflow-hidden
+              className={`absolute bg-white rounded-lg border-2 shadow-sm transition-all duration-300 cursor-pointer overflow-hidden
                 ${isSelected ? 'border-blue-500 shadow-md ring-4 ring-blue-500/20' : 'border-slate-200 hover:border-slate-400'}
+                ${isDimmed ? 'opacity-40 grayscale-[50%]' : 'opacity-100'}
               `}
               style={{ 
                 left: pos.x, 
@@ -220,13 +291,13 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
               }}
               onClick={() => onSelectTask(task.id)}
             >
-              <div className={`h-1.5 w-full ${task.isMilestone ? 'bg-indigo-500' : 'bg-slate-400'}`} />
+              <div className={`h-1.5 w-full ${task.isMilestone ? 'bg-indigo-500' : 'bg-slate-400'} transition-colors`} />
               <div className="p-3">
                 <div className="flex justify-between items-center mb-1">
                   <span className="font-mono text-[10px] text-slate-500">{task.taskCode}</span>
-                  <span className="font-mono text-[10px] font-semibold text-slate-700 bg-slate-100 px-1 rounded">{task.duration}d</span>
+                  <span className="font-mono text-[10px] font-semibold text-slate-700 bg-slate-100 px-1 rounded transition-colors">{task.duration}d</span>
                 </div>
-                <div className="text-xs font-medium text-slate-900 leading-tight line-clamp-2" title={task.name}>
+                <div className="text-xs font-medium text-slate-900 leading-tight line-clamp-2 transition-colors" title={task.name}>
                   {task.name}
                 </div>
               </div>
@@ -238,6 +309,32 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
       {/* Zoom hint overlay */}
       <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm border border-slate-200 text-slate-500 text-xs px-3 py-1.5 rounded shadow-sm pointer-events-none">
         Drag to pan • Scroll to zoom
+      </div>
+
+      {/* Zoom Controls */}
+      <div className="absolute top-4 right-4 flex flex-col gap-1 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm p-1.5 border border-slate-200">
+        <button 
+          className="p-1.5 hover:bg-slate-100 rounded-md text-slate-600 hover:text-slate-900 transition-colors tooltip"
+          title="Zoom In"
+          onClick={() => setTransform(prev => ({...prev, scale: Math.min(prev.scale * 1.3, 3)}))}
+        >
+          <ZoomIn className="w-4 h-4" />
+        </button>
+        <button 
+          className="p-1.5 hover:bg-slate-100 rounded-md text-slate-600 hover:text-slate-900 transition-colors tooltip"
+          title="Zoom Out"
+          onClick={() => setTransform(prev => ({...prev, scale: Math.max(prev.scale / 1.3, 0.1)}))}
+        >
+          <ZoomOut className="w-4 h-4" />
+        </button>
+        <div className="h-px bg-slate-200 my-0.5 mx-1" />
+        <button 
+          className="p-1.5 hover:bg-slate-100 rounded-md text-slate-600 hover:text-slate-900 transition-colors tooltip"
+          title="Reset View"
+          onClick={() => setTransform({ x: 0, y: 0, scale: 1 })}
+        >
+          <Maximize className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );

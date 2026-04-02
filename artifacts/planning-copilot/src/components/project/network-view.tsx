@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useGetTasks, useGetDependencies } from "@workspace/api-client-react";
 import { Loader2, ZoomIn, ZoomOut, Maximize } from "lucide-react";
 
@@ -8,7 +8,7 @@ import { Loader2, ZoomIn, ZoomOut, Maximize } from "lucide-react";
 
 export default function NetworkView({ projectId, selectedTaskId, onSelectTask }: { projectId: number, selectedTaskId: number | null, onSelectTask: (id: number) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+  const [transform, setTransform] = useState<{ x: number, y: number, scale: number }>({ x: 0, y: 0, scale: 1 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
@@ -36,10 +36,10 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
 
   // Compute layers (Crude topological sort)
   const nodeLayers: Record<number, number> = {};
-  const activeTasks = tasks.filter(t => t.type !== "summary");
+  const activeTasks = tasks.filter((t: any) => t.type !== "summary");
   
   // Initialize nodes
-  activeTasks.forEach(t => {
+  activeTasks.forEach((t: any) => {
     nodeLayers[t.id] = 0;
   });
 
@@ -49,7 +49,7 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
   while (changed && iterations < 100) {
     changed = false;
     iterations++;
-    dependencies.forEach(dep => {
+    dependencies.forEach((dep: any) => {
       if (nodeLayers[dep.predecessorTaskId] !== undefined && nodeLayers[dep.successorTaskId] !== undefined) {
         if (nodeLayers[dep.successorTaskId] <= nodeLayers[dep.predecessorTaskId]) {
           nodeLayers[dep.successorTaskId] = nodeLayers[dep.predecessorTaskId] + 1;
@@ -68,7 +68,7 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
   const layerCounts: Record<number, number> = {};
   const nodePositions: Record<number, { x: number, y: number }> = {};
 
-  activeTasks.forEach(task => {
+  activeTasks.forEach((task: any) => {
     const layer = nodeLayers[task.id];
     const indexInLayer = layerCounts[layer] || 0;
     
@@ -85,7 +85,7 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
     if (!selectedTaskId) return new Set<number>();
     
     const linked = new Set<number>([selectedTaskId]);
-    dependencies.forEach(dep => {
+    dependencies.forEach((dep: any) => {
       if (dep.predecessorTaskId === selectedTaskId) linked.add(dep.successorTaskId);
       if (dep.successorTaskId === selectedTaskId) linked.add(dep.predecessorTaskId);
     });
@@ -102,7 +102,7 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     let hasNodes = false;
 
-    linkedTaskIds.forEach(id => {
+    linkedTaskIds.forEach((id: number) => {
       const pos = nodePositions[id];
       if (pos) {
         hasNodes = true;
@@ -139,10 +139,10 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
     if (e.ctrlKey || e.metaKey) {
       // Zoom
       const scaleAdj = e.deltaY > 0 ? 0.9 : 1.1;
-      setTransform(prev => ({ ...prev, scale: Math.max(0.1, Math.min(3, prev.scale * scaleAdj)) }));
+      setTransform((prev: any) => ({ ...prev, scale: Math.max(0.1, Math.min(3, prev.scale * scaleAdj)) }));
     } else {
       // Pan
-      setTransform(prev => ({
+      setTransform((prev: any) => ({
         ...prev,
         x: prev.x - e.deltaX,
         y: prev.y - e.deltaY
@@ -163,7 +163,7 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
     if (isDragging) {
       const dx = e.clientX - dragStart.x;
       const dy = e.clientY - dragStart.y;
-      setTransform(prev => ({
+      setTransform((prev: any) => ({
         ...prev,
         x: prev.x + dx,
         y: prev.y + dy
@@ -216,7 +216,7 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
             }
           `}</style>
 
-          {dependencies.map(dep => {
+          {dependencies.map((dep: any) => {
             const pred = nodePositions[dep.predecessorTaskId];
             const succ = nodePositions[dep.successorTaskId];
             if (!pred || !succ) return null;
@@ -269,7 +269,7 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
           })}
         </svg>
 
-        {activeTasks.map(task => {
+        {activeTasks.map((task: any) => {
           const pos = nodePositions[task.id];
           if (!pos) return null;
           const isSelected = selectedTaskId === task.id;
@@ -316,14 +316,14 @@ export default function NetworkView({ projectId, selectedTaskId, onSelectTask }:
         <button 
           className="p-1.5 hover:bg-slate-100 rounded-md text-slate-600 hover:text-slate-900 transition-colors tooltip"
           title="Zoom In"
-          onClick={() => setTransform(prev => ({...prev, scale: Math.min(prev.scale * 1.3, 3)}))}
+          onClick={() => setTransform((prev: any) => ({...prev, scale: Math.min(prev.scale * 1.3, 3)}))}
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button 
           className="p-1.5 hover:bg-slate-100 rounded-md text-slate-600 hover:text-slate-900 transition-colors tooltip"
           title="Zoom Out"
-          onClick={() => setTransform(prev => ({...prev, scale: Math.max(prev.scale / 1.3, 0.1)}))}
+          onClick={() => setTransform((prev: any) => ({...prev, scale: Math.max(prev.scale / 1.3, 0.1)}))}
         >
           <ZoomOut className="w-4 h-4" />
         </button>
